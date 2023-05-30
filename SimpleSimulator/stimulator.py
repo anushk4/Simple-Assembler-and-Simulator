@@ -123,8 +123,8 @@ def xor_op(inst,pc):
     source_2=binary_actual_r(inst[13:16])
     d_source_1=inst[10:13].zfill(16)
     d_source_2=inst[13:16].zfill(16)
-    r_values[source_1]=inst[10:13].zfill(16)
-    r_values[source_2]=inst[13:16].zfill(16)
+    r_values[source_1]=d_source_1
+    r_values[source_2]=d_source_2
     final=d_source_1^d_source_2
     r_values[destination]=final
     out=count
@@ -141,8 +141,8 @@ def or_op():
     source_2=binary_actual_r(inst[13:16])
     d_source_1=inst[10:13].zfill(16)
     d_source_2=inst[13:16].zfill(16)
-    r_values[source_1]=inst[10:13].zfill(16)
-    r_values[source_2]=inst[13:16].zfill(16)
+    r_values[source_1]=d_source_1
+    r_values[source_2]=d_source_2
     final=d_source_1|d_source_2
     r_values[destination]=final
     out=count
@@ -159,8 +159,8 @@ def and_op():
     source_2=binary_actual_r(inst[13:16])
     d_source_1=inst[10:13].zfill(16)
     d_source_2=inst[13:16].zfill(16)
-    r_values[source_1]=inst[10:13].zfill(16)
-    r_values[source_2]=inst[13:16].zfill(16)
+    r_values[source_1]=d_source_1
+    r_values[source_2]=d_source_2
     final=d_source_1&d_source_2
     r_values[destination]=final
     out=count
