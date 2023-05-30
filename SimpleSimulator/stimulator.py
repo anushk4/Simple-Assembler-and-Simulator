@@ -1,6 +1,13 @@
 
 import sys
-from parameters2 import opcode2,registers2,type2
+from parameters2 import opcode2,registers2
+# import os
+
+
+# current_dir = os.getcwd()
+# file_path = os.path.join(current_dir, 'stdin.txt')
+# print(file_path)
+
 f=open("stdin.txt","r")
 
 r_values={
