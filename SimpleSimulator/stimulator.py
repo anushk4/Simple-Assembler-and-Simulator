@@ -53,29 +53,123 @@ def add_op(inst,pc):
     d_source_2=binary_decimal(inst[13:16])
     r_values[source_1]=decimal_binary(d_source_1)
     r_values[source_2]=decimal_binary(d_source_2)
-    sum=d_source_1+d_source_2
-    if sum>((2**16)-1):
+    final=d_source_1+d_source_2
+    if final>((2**16)-1):
         print("Overflow")
         #overflow condition
     else:
-        r_values[destination]=decimal_binary(sum)
+        r_values[destination]=decimal_binary(final)
         out=count
         for y in r_values.values():
             out+=" "
             out+=y  
         return out
 
+def sub_op(inst,pc):
+    out=""
+    count=decimal_binary_pc(pc)
+    destination=binary_actual_r(inst[7:10])
+    print(destination)
+    source_1=binary_actual_r(inst[10:13])
+    print(source_1)
+    source_2=binary_actual_r(inst[13:16])
+    print(source_2)
+    d_source_1=binary_decimal(inst[10:13])
+    d_source_2=binary_decimal(inst[13:16])
+    r_values[source_1]=decimal_binary(d_source_1)
+    r_values[source_2]=decimal_binary(d_source_2)
+    final=d_source_1-d_source_2
+    if final>((2**16)-1):
+        print("Overflow")
+        #overflow condition
+    else:
+        r_values[destination]=decimal_binary(final)
+        out=count
+        for y in r_values.values():
+            out+=" "
+            out+=y  
+        return out
 
-# def sub_op():
+def mul_op(inst,pc):
+    out=""
+    count=decimal_binary_pc(pc)
+    destination=binary_actual_r(inst[7:10])
+    print(destination)
+    source_1=binary_actual_r(inst[10:13])
+    print(source_1)
+    source_2=binary_actual_r(inst[13:16])
+    print(source_2)
+    d_source_1=binary_decimal(inst[10:13])
+    d_source_2=binary_decimal(inst[13:16])
+    r_values[source_1]=decimal_binary(d_source_1)
+    r_values[source_2]=decimal_binary(d_source_2)
+    final=d_source_1*d_source_2
+    if final>((2**16)-1):
+        print("Overflow")
+        #overflow condition
+    else:
+        r_values[destination]=decimal_binary(final)
+        out=count
+        for y in r_values.values():
+            out+=" "
+            out+=y  
+        return out
 
-# def mul_op():
+def xor_op(inst,pc):
+    out=""
+    count=decimal_binary_pc(pc)
+    destination=binary_actual_r(inst[7:10])
+    source_1=binary_actual_r(inst[10:13])
+    source_2=binary_actual_r(inst[13:16])
+    d_source_1=inst[10:13].zfill(16)
+    d_source_2=inst[13:16].zfill(16)
+    r_values[source_1]=inst[10:13].zfill(16)
+    r_values[source_2]=inst[13:16].zfill(16)
+    final=d_source_1^d_source_2
+    r_values[destination]=final
+    out=count
+    for y in r_values.values():
+        out+=" "
+        out+=y  
+    return out
 
-# def xor_op():
+def or_op():
+    out=""
+    count=decimal_binary_pc(pc)
+    destination=binary_actual_r(inst[7:10])
+    source_1=binary_actual_r(inst[10:13])
+    source_2=binary_actual_r(inst[13:16])
+    d_source_1=inst[10:13].zfill(16)
+    d_source_2=inst[13:16].zfill(16)
+    r_values[source_1]=inst[10:13].zfill(16)
+    r_values[source_2]=inst[13:16].zfill(16)
+    final=d_source_1|d_source_2
+    r_values[destination]=final
+    out=count
+    for y in r_values.values():
+        out+=" "
+        out+=y  
+    return out
 
-# def or_op():
+def and_op():
+    out=""
+    count=decimal_binary_pc(pc)
+    destination=binary_actual_r(inst[7:10])
+    source_1=binary_actual_r(inst[10:13])
+    source_2=binary_actual_r(inst[13:16])
+    d_source_1=inst[10:13].zfill(16)
+    d_source_2=inst[13:16].zfill(16)
+    r_values[source_1]=inst[10:13].zfill(16)
+    r_values[source_2]=inst[13:16].zfill(16)
+    final=d_source_1&d_source_2
+    r_values[destination]=final
+    out=count
+    for y in r_values.values():
+        out+=" "
+        out+=y  
+    return out
 
-# def and_op():
-
+#Type B instructions
 
 
 # Main function
