@@ -13,6 +13,9 @@ def get_registers_A(inst):
 def get_registers_B(inst):
     return registers2[inst[6:9]],inst[9:16].zfill(16)
 
+def get_registers_C(inst):
+    return registers2[inst[10:13]],registers2[inst[13:16]]
+
 def get_registers_D(inst):
     return registers2[inst[6:9]],binary_decimal(inst[9:16])
 
@@ -34,6 +37,7 @@ def decimal_binary_pc(k):
     return y.zfill(7)
 
 #Type A instructions
+
 def add_op(inst,pc):
     out=""
     count=decimal_binary_pc(pc)
@@ -89,10 +93,10 @@ def xor_op(inst,pc):
     out=""
     count=decimal_binary_pc(pc)
     destination,source_1,source_2=get_registers_A(inst)
-    d_source_1=r_values[source_1]
-    d_source_2=r_values[source_2]
+    d_source_1=binary_decimal(r_values[source_1])
+    d_source_2=binary_decimal(r_values[source_2])
     final=d_source_1^d_source_2
-    r_values[destination]=final
+    r_values[destination]=decimal_binary(final)
     out=count
     for y in r_values.values():
         out+=" "
@@ -103,10 +107,10 @@ def or_op(inst,pc):
     out=""
     count=decimal_binary_pc(pc)
     destination,source_1,source_2=get_registers_A(inst)
-    d_source_1=r_values[source_1]
-    d_source_2=r_values[source_2]
+    d_source_1=binary_decimal(r_values[source_1])
+    d_source_2=binary_decimal(r_values[source_2])
     final=d_source_1|d_source_2
-    r_values[destination]=final
+    r_values[destination]=decimal_binary(final)
     out=count
     for y in r_values.values():
         out+=" "
@@ -117,12 +121,10 @@ def and_op(inst,pc):
     out=""
     count=decimal_binary_pc(pc)
     destination,source_1,source_2=get_registers_A(inst)
-    d_source_1=inst[10:13].zfill(16)
-    d_source_2=inst[13:16].zfill(16)
-    r_values[source_1]=d_source_1
-    r_values[source_2]=d_source_2
+    d_source_1=binary_decimal(r_values[source_1])
+    d_source_2=binary_decimal(r_values[source_2])
     final=d_source_1&d_source_2
-    r_values[destination]=final
+    r_values[destination]=decimal_binary(final)
     out=count
     for y in r_values.values():
         out+=" "
@@ -175,8 +177,7 @@ def rs_op(inst, pc):
 def mov_reg_op(inst, pc):
     out = ""
     count = decimal_binary_pc(pc)
-    destination = binary_actual_r(inst[7:10])
-    source = binary_actual_r(inst[10:13])
+    destination,source=get_registers_C(inst)
     r_values[destination] = r_values[source]
     out = count
     for y in r_values.values():
@@ -184,6 +185,56 @@ def mov_reg_op(inst, pc):
         out += y
     return out
 
+def divide_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    reg3,reg4=get_registers_C(inst)
+    value_1=binary_decimal(r_values[reg3])
+    value_2=binary_decimal(r_values[reg4])
+    if value_2==0:
+        r_values["R0"]=decimal_binary(0)
+        r_values["R1"]=decimal_binary(0)
+        r_values["FLAGS"]=flag_overflow
+    else:
+        r_values["R0"]=decimal_binary(value_1//value_2)
+        r_values["R1"]=decimal_binary(value_1%value_2)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def not_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination,source=get_registers_C(inst)
+    d_source_1=r_values[source]
+    final=d_source_1.replace("0", "_").replace("1", "0").replace("_", "1")
+    r_values[destination]=final
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def cmp_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    reg1,reg2=get_registers_C(inst)
+    value_1=binary_decimal(r_values[reg1])
+    value_2=binary_decimal(r_values[reg2])
+    if value_1>value_2:
+        r_values["FLAGS"]=flag_greater_than
+    elif value_1<value_2:
+        r_values["FLAGS"]=flag_less_than
+    else:
+        r_values["FLAGS"]=flag_equal
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+    
 
 # Type D instruction
 
@@ -281,13 +332,21 @@ while True:
         final_result=ls_op(inst,pc)
     elif op_code=="01000":
         final_result=rs_op(inst,pc)
+    elif op_code=="00011":
+        final_result=mov_reg_op(inst,pc)
+    elif op_code=="00111":
+        final_result=divide_op(inst,pc)
+    elif op_code=="01101":
+        final_result=not_op(inst,pc)
+    elif op_code=="01110":
+        final_result=cmp_op(inst,pc)
     elif op_code=="11010":
         break
-    print(final_result)
+    print(final_result.strip())
     if op_code not in ["11100","11101","01111","11111"]:
         i+=1
         inst=file_instructions[pointers[i]]
     pc+=1
 for i in memory:
-    print(i)  
+    print(i.strip())  
 f.close()
