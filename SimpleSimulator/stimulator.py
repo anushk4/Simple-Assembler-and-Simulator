@@ -142,6 +142,38 @@ def mov_imm_op(inst, pc):
         out += y
     return out
 
+def ls_op(inst, pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination, shift_amount = get_registers_B(inst)
+    value = r_values[destination]
+    shifted_value = value[shift_amount:] + "0" * shift_amount
+    r_values[destination] = shifted_value
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def rs_op(inst, pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination, shift_amount = get_registers_B(inst)
+    value = r_values[destination]
+    shifted_value = "0" * shift_amount + value[:-shift_amount]
+    r_values[destination] = shifted_value
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def get_registers_B(inst):
+    destination = binary_actual_r(inst[6:9])
+    shift_amount = binary_decimal(inst[9:16])
+    return destination, shift_amount
+
+
 # Type C instruction
 
 def mov_reg_op(inst, pc):
