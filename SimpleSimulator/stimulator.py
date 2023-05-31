@@ -190,8 +190,6 @@ def mov_reg_op(inst, pc):
 def ld_op(inst, pc):
     out = ""
     count = decimal_binary_pc(pc)
-    # destination = binary_actual_r(inst[7:10])
-    # memory_address = binary_actual_r(inst[10:13])
     destination,memory_address=get_registers_D(inst)
     r_values[destination] = memory[memory_address]
     out = count
@@ -203,8 +201,6 @@ def ld_op(inst, pc):
 def st_op(inst, pc):
     out = ""
     count = decimal_binary_pc(pc)
-    # source = binary_actual_r(inst[7:10])
-    # memory_address = binary_actual_r(inst[10:13])
     source,memory_address=get_registers_D(inst)
     memory[memory_address] = r_values[source]
     out = count
@@ -252,7 +248,6 @@ for i in f:
     k+=1
 
 pc=0
-halted=False
 
 #Flag initialisation
 flag_overflow="0"*12+"1000"
@@ -262,38 +257,33 @@ flag_equal="0"*12+"0001"
 
 i=0
 inst=file_instructions[pointers[i]]
-while not halted:
+while True:
     op_code=inst[0:5]
     if op_code=="0"*5:
         final_result=add_op(inst,pc)
-        print(final_result)
     elif op_code=="00001":
         final_result=sub_op(inst,pc)
-        print(final_result)
     elif op_code=="00110":
         final_result=mul_op(inst,pc)
-        print(final_result)
     elif op_code=="01010":
         final_result=xor_op(inst,pc)
-        print(final_result)
     elif op_code=="01011":
         final_result=or_op(inst,pc)
-        print(final_result)
     elif op_code=="01100":
         final_result=and_op(inst,pc)
-        print(final_result)
     elif op_code=="00010":
         final_result=mov_imm_op(inst,pc)
-        print(final_result)
     elif op_code=="00100":
         final_result=ld_op(inst,pc)
-        print(final_result)
     elif op_code=="00101":
         final_result=st_op(inst,pc)
-        print(final_result)
+    elif op_code=="01001":
+        final_result=ls_op(inst,pc)
+    elif op_code=="01000":
+        final_result=rs_op(inst,pc)
     elif op_code=="11010":
-        halted=True
         break
+    print(final_result)
     if op_code not in ["11100","11101","01111","11111"]:
         i+=1
         inst=file_instructions[pointers[i]]
