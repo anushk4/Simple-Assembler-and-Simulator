@@ -13,6 +13,9 @@ def get_registers_A(inst):
 def get_registers_B(inst):
     return registers2[inst[6:9]],inst[9:16].zfill(16)
 
+def get_registers_D(inst):
+    return registers2[inst[6:9]],binary_decimal(inst[9:16])
+
 def binary_actual_r(a):   # binary to actual register
     for x,y in registers2.items():
         if x==a:
@@ -156,29 +159,31 @@ def mov_reg_op(inst, pc):
 
 # Type D instruction
 
-# def ld_op(inst, pc):
-#     out = ""
-#     count = decimal_binary_pc(pc)
-#     destination = binary_actual_r(inst[7:10])
-#     memory_address = binary_actual_r(inst[10:13])
-#     r_values[destination] = memory[memory_address]
-#     out = count
-#     for y in r_values.values():
-#         out += " "
-#         out += y
-#     return out
+def ld_op(inst, pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    # destination = binary_actual_r(inst[7:10])
+    # memory_address = binary_actual_r(inst[10:13])
+    destination,memory_address=get_registers_D(inst)
+    r_values[destination] = memory[memory_address]
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
 
-# def st_op(inst, pc):
-#     out = ""
-#     count = decimal_binary_pc(pc)
-#     source = binary_actual_r(inst[7:10])
-#     memory_address = binary_actual_r(inst[10:13])
-#     memory[memory_address] = r_values[source]
-#     out = count
-#     for y in r_values.values():
-#         out += " "
-#         out += y
-#     return out
+def st_op(inst, pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    # source = binary_actual_r(inst[7:10])
+    # memory_address = binary_actual_r(inst[10:13])
+    source,memory_address=get_registers_D(inst)
+    memory[memory_address] = r_values[source]
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
 
 # Main function
 
@@ -209,11 +214,13 @@ r_values={
 
 k=0
 file_instructions={}
+memory=["0"*16]*128
 pointers=[]
 for i in f:
     pointer=bin(k)[2:].zfill(7)
     pointers.append(pointer)
     file_instructions[pointer]=i.rstrip("\n")
+    memory[k]=file_instructions[pointer]
     k+=1
 
 pc=0
@@ -250,6 +257,12 @@ while not halted:
     elif op_code=="00010":
         final_result=mov_imm_op(inst,pc)
         print(final_result)
+    elif op_code=="00100":
+        final_result=ld_op(inst,pc)
+        print(final_result)
+    elif op_code=="00101":
+        final_result=st_op(inst,pc)
+        print(final_result)
     elif op_code=="11010":
         halted=True
         break
@@ -257,7 +270,8 @@ while not halted:
         i+=1
         inst=file_instructions[pointers[i]]
     pc+=1
-    
+for i in memory:
+    print(i)  
 
 
 
