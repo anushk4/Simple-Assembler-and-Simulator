@@ -177,14 +177,16 @@ def and_op(inst,pc):
 def mov_imm_op(inst, pc):
     out = ""
     count = decimal_binary_pc(pc)
-    destination = binary_actual_r(inst[7:10])
-    immediate_value = inst[10:16].zfill(16)
+    destination = binary_actual_r(inst[6:9])
+    immediate_value = inst[9:16].zfill(16)
     r_values[destination] = immediate_value
     out = count
     for y in r_values.values():
         out += " "
         out += y
     return out
+
+# Type C instruction
 
 def mov_reg_op(inst, pc):
     out = ""
@@ -197,6 +199,9 @@ def mov_reg_op(inst, pc):
         out += " "
         out += y
     return out
+
+
+# Type D instruction
 
 def ld_op(inst, pc):
     out = ""
@@ -223,6 +228,7 @@ def st_op(inst, pc):
     return out
 
 # Main function
+
 for line in f:
     inst=line.rstrip("\n")
     result=binary_actual_op(inst[0:5])
