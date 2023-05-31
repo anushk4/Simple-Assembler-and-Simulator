@@ -272,19 +272,4 @@ while not halted:
     pc+=1
 for i in memory:
     print(i)  
-
-
-
-
-
-
-
-
-
-
 f.close()
-
-
-
-
-
