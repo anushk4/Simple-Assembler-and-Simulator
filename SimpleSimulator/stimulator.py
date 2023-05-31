@@ -14,6 +14,9 @@ r_values={
     "R6":"0"*16,
     "FLAGS":"0"*16
 }
+
+memory = {}
+
 pc=0
 halted=False
 
@@ -133,7 +136,7 @@ def xor_op(inst,pc):
         out+=y  
     return out
 
-def or_op():
+def or_op(inst,pc):
     out=""
     count=decimal_binary_pc(pc)
     destination=binary_actual_r(inst[7:10])
@@ -151,7 +154,7 @@ def or_op():
         out+=y  
     return out
 
-def and_op():
+def and_op(inst,pc):
     out=""
     count=decimal_binary_pc(pc)
     destination=binary_actual_r(inst[7:10])
@@ -169,8 +172,55 @@ def and_op():
         out+=y  
     return out
 
-#Type B instructions
+# Type B instructions
 
+def mov_imm_op(inst, pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination = binary_actual_r(inst[7:10])
+    immediate_value = inst[10:16].zfill(16)
+    r_values[destination] = immediate_value
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def mov_reg_op(inst, pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination = binary_actual_r(inst[7:10])
+    source = binary_actual_r(inst[10:13])
+    r_values[destination] = r_values[source]
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def ld_op(inst, pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination = binary_actual_r(inst[7:10])
+    memory_address = binary_actual_r(inst[10:13])
+    r_values[destination] = memory[memory_address]
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def st_op(inst, pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    source = binary_actual_r(inst[7:10])
+    memory_address = binary_actual_r(inst[10:13])
+    memory[memory_address] = r_values[source]
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
 
 # Main function
 for line in f:
