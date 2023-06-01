@@ -260,6 +260,17 @@ def st_op(inst, pc):
         out += y
     return out
 
+# Type F instruction
+
+def halt_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
 # Main function
 
 #input for testing
@@ -341,6 +352,8 @@ while True:
     elif op_code=="01110":
         final_result=cmp_op(inst,pc)
     elif op_code=="11010":
+        final_result=halt_op(inst,pc)
+        print(final_result.strip())
         break
     print(final_result.strip())
     if op_code not in ["11100","11101","01111","11111"]:
