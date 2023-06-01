@@ -19,6 +19,9 @@ def get_registers_C(inst):
 def get_registers_D(inst):
     return registers2[inst[6:9]],binary_decimal(inst[9:16])
 
+def get_address_E(inst):
+    return binary_decimal(inst[9:16])
+
 def binary_actual_r(a):   # binary to actual register
     for x,y in registers2.items():
         if x==a:
@@ -260,6 +263,44 @@ def st_op(inst, pc):
         out += y
     return out
 
+# Type E instruction
+
+def jmp_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def jlt_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def jgt_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def je_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
 # Type F instruction
 
 def halt_op(inst,pc):
@@ -351,14 +392,53 @@ while True:
         final_result=not_op(inst,pc)
     elif op_code=="01110":
         final_result=cmp_op(inst,pc)
+    elif op_code=="01111":
+        final_result=jmp_op(inst,pc)
+    elif op_code=="11100":
+        final_result=jlt_op(inst,pc)
+    elif op_code=="11101":
+        final_result=jgt_op(inst,pc)
+    elif op_code=="11111":
+        final_result=je_op(inst,pc)
     elif op_code=="11010":
         final_result=halt_op(inst,pc)
+        final_result=final_result[:-16]+"0"*16
         print(final_result.strip())
         break
+    if op_code!="01110":
+        final_result=final_result[:-16]+"0"*16  # to confirm
     print(final_result.strip())
     if op_code not in ["11100","11101","01111","11111"]:
         i+=1
         inst=file_instructions[pointers[i]]
+    elif op_code == "01111":
+        mem_address = get_address_E(inst)
+        i = mem_address
+        inst = file_instructions[pointers[i]]
+    elif op_code == "11100":
+        if r_values["FLAGS"] == flag_less_than:
+            mem_address = get_address_E(inst)
+            i = mem_address
+            inst = file_instructions[pointers[i]]
+        else:
+            i+=1
+            inst=file_instructions[pointers[i]]
+    elif op_code == "11101":
+        if r_values["FLAGS"] == flag_greater_than:
+            mem_address = get_address_E(inst)
+            i = mem_address
+            inst = file_instructions[pointers[i]]
+        else:
+            i+=1
+            inst=file_instructions[pointers[i]]
+    elif op_code == "11111":
+        if r_values["FLAGS"] == flag_equal:
+            mem_address = get_address_E(inst)
+            i = mem_address
+            inst = file_instructions[pointers[i]]
+        else:
+            i+=1
+            inst=file_instructions[pointers[i]]
     pc+=1
 for i in memory:
     print(i.strip())  
