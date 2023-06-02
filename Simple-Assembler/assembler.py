@@ -9,6 +9,75 @@
 import sys
 from parameters import opcode,registers,type
 
+def float_to_binary(number):
+    if number == 0:
+        return "0"
+    
+    if number < 0:
+        number = -number
+
+    binary = ""
+    fraction = number - int(number)
+
+    integer_part = abs(int(number))
+    while integer_part > 0:
+        binary = str(integer_part % 2) + binary
+        integer_part //= 2
+
+    binary += "."
+
+    max_digits = 16  
+    while fraction > 0 and len(binary) <= max_digits:
+        fraction *= 2
+        bit = int(fraction)
+        binary += str(bit)
+        fraction -= bit
+
+    return binary
+
+def binary_to_rep(binary):
+    str_binary = str(binary)
+    split = str_binary.split(".")
+    i = 0
+    while split[0] != "1":
+        if split[0] == "":
+            i = i - 1
+            if split[1][0] == "0":
+                split[1] = split[1][1:]
+            else:
+                split[0] = "1"
+                split[1] = split[1][1:]
+        else:
+            i = len(split[0]) - 1
+            split[1] = split[0][1:] + split[1]
+            split[0] = "1"
+            
+                
+            
+        
+    return(split[0] + "." + split[1], i)
+
+def truncate(binary, exp):
+    if exp < -3 or exp > 4:
+        print("Error : Exponent out of range")
+        return
+    split = binary.split(".")
+    mantissa = split[1]
+    if len(mantissa) > 8:
+        print("Error : Mantissa out of range")
+        return
+    final_mantissa = mantissa.ljust(5,"0")
+    bias_exp = exp + 3
+    bin_exp = bin(bias_exp)[2:]
+    final_exp = bin_exp.zfill(3)
+    return(final_exp + final_mantissa)
+
+def float_to_rep(number):
+    binary_representation = float_to_binary(number)
+    standard_form, exponent = binary_to_rep(binary_representation)
+    final_ans = truncate(standard_form, exponent)
+    return final_ans
+
 #Type A
 def add(reg1, reg2, reg3):
         return(opcode["add"] + "00" + registers[reg1] + registers[reg2] + registers[reg3])
@@ -28,6 +97,12 @@ def orr(reg1, reg2, reg3):
 def andd(reg1, reg2, reg3):
         return(opcode["and"] + "00" + registers[reg1] + registers[reg2] + registers[reg3])
 
+def addf(reg1, reg2, reg3):
+        return(opcode["addf"] + "00" + registers[reg1] + registers[reg2] + registers[reg3])
+
+def subf(reg1, reg2, reg3):
+        return(opcode["addf"] + "00" + registers[reg1] + registers[reg2] + registers[reg3])
+
 #Type B 
 def mov_addr(reg1,num):
         binary=bin(int(num))[2:]
@@ -46,6 +121,11 @@ def lshift(reg1,num):
         if len(binary)<7:
                 binary="0"*(7-len(binary))+binary
         return (opcode["ls"]+"0"+registers[reg1]+binary)
+
+#Modified Type B
+def movf(reg1, num):
+        std_rep = float_to_rep(num)
+        return (opcode["movf"] + registers[reg1] + std_rep)
 
 #Type C
 def mov(reg1, reg2):
@@ -84,7 +164,7 @@ def je(mem_addr):
 def hlt():
     return(opcode["hlt"] + "00000000000")
 
-instructions=["add","sub","mov","ld","st","mul","div","rs","ls","xor","or","and","not","cmp","jmp","jlt","jgt","je","hlt"]
+instructions=["add","sub","addf","subf","mov","movf","ld","st","mul","div","rs","ls","xor","or","and","not","cmp","jmp","jlt","jgt","je","hlt"]
 reg=["R0","R1","R2","R3","R4","R5","R6","FLAGS","r0","r1","r2","r3","r4","r5","r6","flags"]
 
 variables_a=[]
@@ -426,6 +506,10 @@ for i in memory:
                 output.append(sub(instruct[1],instruct[2],instruct[3]))
         elif instruct[0]=="mul":
                 output.append(mul(instruct[1],instruct[2],instruct[3]))
+        elif instruct[0]=="addf":
+                output.append(addf(instruct[1],instruct[2],instruct[3]))
+        elif instruct[0]=="subf":
+                output.append(subf(instruct[1],instruct[2],instruct[3]))
         elif instruct[0]=="xor":
                 output.append(xor(instruct[1],instruct[2],instruct[3]))
         elif instruct[0]=="or":
@@ -437,6 +521,8 @@ for i in memory:
                         output.append(mov_addr(instruct[1],instruct[2][1:]))
                 else:
                         output.append(mov(instruct[1],instruct[2]))
+        elif instruct[0]=="movf":
+                output.append(movf(instruct[1],float(instruct[2][1:])))
         elif instruct[0]=="rs":
                 output.append(rshift(instruct[1],instruct[2][1:]))
         elif instruct[0]=="ls":
