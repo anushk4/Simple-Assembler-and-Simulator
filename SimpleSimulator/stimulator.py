@@ -27,6 +27,17 @@ def binary_actual_r(a):   # binary to actual register
         if x==a:
             return y
       
+
+def rep_to_decimal(rep):
+    exp = rep[:3]
+    mantissa = rep[3:]
+    int_exp = (int(exp, 2)) - 3
+    mantissa_value = 0.0
+    for i in range(len(mantissa)):
+        mantissa_value = mantissa_value + float(mantissa[i])*((2)**(-(i+1)))
+    return((1+mantissa_value)*(2**(int_exp)))      
+
+
 def decimal_binary(n):  
     x=bin(n).replace("0b","")
     return x.zfill(16)
