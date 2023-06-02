@@ -278,32 +278,29 @@ def jmp_op(inst,pc):
 def jlt_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
-    r_values["FLAGS"]="0"*16
     out = count
     for y in r_values.values():
         out += " "
         out += y
-    return out
+    return out[:-16]+"0"*16
 
 def jgt_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
-    r_values["FLAGS"]="0"*16
     out = count
     for y in r_values.values():
         out += " "
         out += y
-    return out
+    return out[:-16]+"0"*16
 
 def je_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
-    r_values["FLAGS"]="0"*16
     out = count
     for y in r_values.values():
         out += " "
         out += y
-    return out
+    return out[:-16]+"0"*16
 
 # Type F instruction
 
@@ -314,7 +311,7 @@ def halt_op(inst,pc):
     for y in r_values.values():
         out += " "
         out += y
-    return out
+    return out[:-16]+"0"*16
 
 # Main function
 
@@ -367,45 +364,45 @@ inst=file_instructions[pointers[i]]
 while True:
     op_code=inst[0:5]
     if op_code=="0"*5:
-        final_result=add_op(inst,pc)
+        final_result=add_op(inst,i)
     elif op_code=="00001":
-        final_result=sub_op(inst,pc)
+        final_result=sub_op(inst,i)
     elif op_code=="00110":
-        final_result=mul_op(inst,pc)
+        final_result=mul_op(inst,i)
     elif op_code=="01010":
-        final_result=xor_op(inst,pc)
+        final_result=xor_op(inst,i)
     elif op_code=="01011":
-        final_result=or_op(inst,pc)
+        final_result=or_op(inst,i)
     elif op_code=="01100":
-        final_result=and_op(inst,pc)
+        final_result=and_op(inst,i)
     elif op_code=="00010":
-        final_result=mov_imm_op(inst,pc)
+        final_result=mov_imm_op(inst,i)
     elif op_code=="00100":
-        final_result=ld_op(inst,pc)
+        final_result=ld_op(inst,i)
     elif op_code=="00101":
-        final_result=st_op(inst,pc)
+        final_result=st_op(inst,i)
     elif op_code=="01001":
-        final_result=ls_op(inst,pc)
+        final_result=ls_op(inst,i)
     elif op_code=="01000":
-        final_result=rs_op(inst,pc)
+        final_result=rs_op(inst,i)
     elif op_code=="00011":
-        final_result=mov_reg_op(inst,pc)
+        final_result=mov_reg_op(inst,i)
     elif op_code=="00111":
-        final_result=divide_op(inst,pc)
+        final_result=divide_op(inst,i)
     elif op_code=="01101":
-        final_result=not_op(inst,pc)
+        final_result=not_op(inst,i)
     elif op_code=="01110":
-        final_result=cmp_op(inst,pc)
+        final_result=cmp_op(inst,i)
     elif op_code=="01111":
-        final_result=jmp_op(inst,pc)
+        final_result=jmp_op(inst,i)
     elif op_code=="11100":
-        final_result=jlt_op(inst,pc)
+        final_result=jlt_op(inst,i)
     elif op_code=="11101":
-        final_result=jgt_op(inst,pc)
+        final_result=jgt_op(inst,i)
     elif op_code=="11111":
-        final_result=je_op(inst,pc)
+        final_result=je_op(inst,i)
     elif op_code=="11010":
-        final_result=halt_op(inst,pc)
+        final_result=halt_op(inst,i)
         print(final_result.strip())
         break
     print(final_result.strip())
@@ -421,6 +418,7 @@ while True:
             mem_address = get_address_E(inst)
             i = mem_address
             inst = file_instructions[pointers[i]]
+            r_values["FLAGS"]="0"*16
         else:
             i+=1
             inst=file_instructions[pointers[i]]
@@ -429,6 +427,7 @@ while True:
             mem_address = get_address_E(inst)
             i = mem_address
             inst = file_instructions[pointers[i]]
+            r_values["FLAGS"]="0"*16
         else:
             i+=1
             inst=file_instructions[pointers[i]]
@@ -437,6 +436,7 @@ while True:
             mem_address = get_address_E(inst)
             i = mem_address
             inst = file_instructions[pointers[i]]
+            r_values["FLAGS"]="0"*16
         else:
             i+=1
             inst=file_instructions[pointers[i]]
