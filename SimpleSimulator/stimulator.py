@@ -313,6 +313,79 @@ def halt_op(inst,pc):
         out += y
     return out[:-16]+"0"*16
 
+
+# Additional instructions
+
+def inc_op(inst, pc):
+    #This instruction increments the value of a register by 1
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination, _, _ = get_registers_A(inst)
+    value = binary_decimal(r_values[destination])
+    value += 1
+    if value > ((2**16) - 1):
+        value = 0
+        r_values["FLAGS"] = flag_overflow
+    r_values[destination] = decimal_binary(value)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def dec_op(inst, pc):
+    #This instruction decrements the value of a register by 1
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination, _, _ = get_registers_A(inst)
+    value = binary_decimal(r_values[destination])
+    value -= 1
+    if value < 0:
+        value = (2**16) - 1
+        r_values["FLAGS"] = flag_overflow
+    r_values[destination] = decimal_binary(value)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def swap_op(inst, pc):
+    #This instruction swaps the values of two registers
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination, source_1, source_2 = get_registers_A(inst)
+    r_values[destination], r_values[source_2] = r_values[source_2], r_values[destination]
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def neg_op(inst, pc):
+    #This instruction negates the value of a register (bitwise complement)
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination, _, _ = get_registers_A(inst)
+    value = binary_decimal(r_values[destination])
+    value = (~value) & 0xFFFF  # Bitwise complement
+    r_values[destination] = decimal_binary(value)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def nop_op(inst, pc):
+    #This instruction performs no operation and simply moves to the next instruction
+    out = ""
+    count = decimal_binary_pc(pc)
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
 # Main function
 
 #input for testing
