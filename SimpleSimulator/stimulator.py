@@ -182,6 +182,7 @@ def mov_reg_op(inst, pc):
     count = decimal_binary_pc(pc)
     destination,source=get_registers_C(inst)
     r_values[destination] = r_values[source]
+    r_values[source]="0"*16
     out = count
     for y in r_values.values():
         out += " "
@@ -277,6 +278,7 @@ def jmp_op(inst,pc):
 def jlt_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
+    r_values["FLAGS"]="0"*16
     out = count
     for y in r_values.values():
         out += " "
@@ -286,6 +288,7 @@ def jlt_op(inst,pc):
 def jgt_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
+    r_values["FLAGS"]="0"*16
     out = count
     for y in r_values.values():
         out += " "
@@ -295,6 +298,7 @@ def jgt_op(inst,pc):
 def je_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
+    r_values["FLAGS"]="0"*16
     out = count
     for y in r_values.values():
         out += " "
@@ -402,11 +406,8 @@ while True:
         final_result=je_op(inst,pc)
     elif op_code=="11010":
         final_result=halt_op(inst,pc)
-        final_result=final_result[:-16]+"0"*16
         print(final_result.strip())
         break
-    if op_code!="01110":
-        final_result=final_result[:-16]+"0"*16  # to confirm
     print(final_result.strip())
     if op_code not in ["11100","11101","01111","11111"]:
         i+=1
