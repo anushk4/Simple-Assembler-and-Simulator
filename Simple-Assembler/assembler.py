@@ -14,7 +14,8 @@ def float_to_binary(number):
         return "0"
     
     if number < 0:
-        number = -number
+        print("Invalid immediate value. (Negative number)")
+        return
 
     binary = ""
     fraction = number - int(number)
