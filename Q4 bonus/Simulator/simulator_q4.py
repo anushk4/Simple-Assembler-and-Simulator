@@ -1,4 +1,3 @@
-
 from parameters2 import registers2
 
 def get_registers_A(inst):
