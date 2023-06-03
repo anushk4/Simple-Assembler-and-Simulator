@@ -157,7 +157,18 @@ def hlt():
 
 #Bonus functions
 
-instructions=["add","sub","addf","subf","mov","movf","ld","st","mul","div","rs","ls","xor","or","and","not","cmp","jmp","jlt","jgt","je","hlt"]
+def swap(reg1, reg2):
+    return(opcode["swap"] + "00000" + registers[reg1] + registers[reg2])
+
+def rr(reg1,num):
+        binary=bin(int(num))[2:].zfill(7)
+        return (opcode["rr"]+"0"+registers[reg1]+binary)
+
+def rl(reg1,num):
+        binary=bin(int(num))[2:].zfill(7)
+        return (opcode["rl"]+"0"+registers[reg1]+binary)
+
+instructions=["add","sub","addf","subf","mov","movf","ld","st","mul","div","rs","ls","xor","or","and","not","cmp","jmp","jlt","jgt","je","hlt","swap","rr","rl","rev","nand"]
 reg=["R0","R1","R2","R3","R4","R5","R6","FLAGS","r0","r1","r2","r3","r4","r5","r6","flags"]
 
 variables_a=[]
@@ -276,21 +287,21 @@ def error_handling1(instructions,reg):
                                instruct=i.split(":")[1].split()
                         else:
                                 instruct=i.split()
-                        if (instruct[0]=="add" or instruct[0]=="sub" or instruct[0]=="mul" or instruct[0]=="xor" or instruct[0]=="or" or  instruct[0]=="and" or instruct[0]=="addf" or instruct[0]=="subf"):
+                        if (instruct[0]=="add" or instruct[0]=="sub" or instruct[0]=="mul" or instruct[0]=="xor" or instruct[0]=="or" or  instruct[0]=="and" or instruct[0]=="addf" or instruct[0]=="subf" or instruct[0]=="nand"):
                                 reg_inst.extend([instruct[1],instruct[2],instruct[3]])
                                 for j in reg_inst:
                                         if j not in reg:
                                                 f=1
                                                 line_no=lines.index(i)+1
                                                 print(f"Syntax error: Invalid register used in line {line_no}\n") 
-                        elif(instruct[0]=="ld" or instruct[0]=="st" or instruct[0]=="rs"or instruct[0]=="ls"):
+                        elif(instruct[0]=="ld" or instruct[0]=="st" or instruct[0]=="rs"or instruct[0]=="ls" or instruct[0]=="rr" or instruct[0]=="rl"):
                                 reg_inst.append(instruct[1])
                                 for j in reg_inst:
                                         if j not in reg:
                                                 f=1
                                                 line_no=lines.index(i)+1
                                                 print(f"Syntax error: Invalid register used in line {line_no}\n")
-                        elif(instruct[0]=="div" or instruct[0]=="not" or instruct[0]=="cmp"):
+                        elif(instruct[0]=="div" or instruct[0]=="not" or instruct[0]=="cmp" or instruct[0]=="swap" or instruct[0]=="rev"):
                                 reg_inst.extend([instruct[1],instruct[2]])
                                 for j in reg_inst:
                                         if j not in reg:
@@ -372,15 +383,15 @@ def error_handling4():
         else:
             instruct = i.split()
                     
-        if instruct[0] == "add" or instruct[0] == "sub" or instruct[0] == "mul" or instruct[0] == "xor" or instruct[0] == "or" or instruct[0] == "and" or instruct[0]=="addf" or instruct[0]=="subf":
+        if instruct[0] == "add" or instruct[0] == "sub" or instruct[0] == "mul" or instruct[0] == "xor" or instruct[0] == "or" or instruct[0] == "and" or instruct[0]=="addf" or instruct[0]=="subf" or instruct[0]=="nand":
             regs.append(instruct[1])
             regs.append(instruct[2])
             regs.append(instruct[3])
             
-        elif instruct[0] == "mov" or instruct[0] == "rs" or instruct[0] == "ls" or instruct[0]=="movf":
+        elif instruct[0] == "mov" or instruct[0] == "rs" or instruct[0] == "ls" or instruct[0]=="movf" or (instruct[0] in ["rr","rl"]):
             regs.append(instruct[1])
                 
-        elif instruct[0] == "div" or instruct[0] == "not" or instruct[0] == "cmp":
+        elif instruct[0] == "div" or instruct[0] == "not" or instruct[0] == "cmp" or (instruct[0] in ["swap","rev"]):
             regs.append(instruct[1])
             regs.append(instruct[2])
             
@@ -402,7 +413,7 @@ def error_handling5():
                         instruct = i.split(":")[1].split()
                 else:
                         instruct = i.split()             
-                if instruct[0] == "mov" or instruct[0] == "rs" or instruct[0] == "ls":                     
+                if instruct[0] == "mov" or instruct[0] == "rs" or instruct[0] == "ls" or instruct[0] == "rr" or instruct[0] == "rl":                     
                         if instruct[2][0] == "$":                      
                                 imm_value = instruct[2][1:]                      
                                 if imm_value not in imm_values:                               
@@ -530,6 +541,12 @@ for i in memory:
                 output.append(ld(instruct[1],var[instruct[2]]))
         elif instruct[0]=="st":
                 output.append(st(instruct[1],var[instruct[2]]))
+        elif instruct[0] == "swap":
+               output.append(swap(instruct[1],instruct[2]))
+        elif instruct[0] == "rr":
+               output.append(rr(instruct[1],instruct[2][1:]))
+        elif instruct[0] == "rl":
+               output.append(rl(instruct[1],instruct[2][1:]))
         elif instruct[0] in ["jmp","jlt","jgt","je"]:
                 label=instruct[1]
                 for j in memory:
