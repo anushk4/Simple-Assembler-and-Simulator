@@ -11,29 +11,23 @@ from parameters import opcode,registers,type
 
 def float_to_binary(number):
     if number == 0:
-        return "0"
-    
+        return "0"  
     if number < 0:
         print("Invalid immediate value. (Negative number)")
-        return
-
+        sys.exit()
     binary = ""
     fraction = number - int(number)
-
     integer_part = abs(int(number))
     while integer_part > 0:
         binary = str(integer_part % 2) + binary
         integer_part //= 2
-
     binary += "."
-
     max_digits = 16  
     while fraction > 0 and len(binary) <= max_digits:
         fraction *= 2
         bit = int(fraction)
         binary += str(bit)
         fraction -= bit
-
     return binary
 
 def binary_to_rep(binary):
@@ -51,22 +45,18 @@ def binary_to_rep(binary):
         else:
             i = len(split[0]) - 1
             split[1] = split[0][1:] + split[1]
-            split[0] = "1"
-            
-                
-            
-        
+            split[0] = "1"    
     return(split[0] + "." + split[1], i)
 
 def truncate(binary, exp):
     if exp < -3 or exp > 4:
         print("Error : Exponent out of range")
-        return
+        sys.exit()
     split = binary.split(".")
     mantissa = split[1]
     if len(mantissa) > 8:
         print("Error : Mantissa out of range")
-        return
+        sys.exit()
     final_mantissa = mantissa.ljust(5,"0")
     bias_exp = exp + 3
     bin_exp = bin(bias_exp)[2:]
@@ -284,7 +274,7 @@ def error_handling1(instructions,reg):
                                instruct=i.split(":")[1].split()
                         else:
                                 instruct=i.split()
-                        if (instruct[0]=="add" or instruct[0]=="sub" or instruct[0]=="mul" or instruct[0]=="xor" or instruct[0]=="or" or  instruct[0]=="and"):
+                        if (instruct[0]=="add" or instruct[0]=="sub" or instruct[0]=="mul" or instruct[0]=="xor" or instruct[0]=="or" or  instruct[0]=="and" or instruct[0]=="addf" or instruct[0]=="subf"):
                                 reg_inst.extend([instruct[1],instruct[2],instruct[3]])
                                 for j in reg_inst:
                                         if j not in reg:
@@ -305,7 +295,7 @@ def error_handling1(instructions,reg):
                                                 f=1
                                                 line_no=lines.index(i)+1
                                                 print(f"Syntax error: Invalid register used in line {line_no}\n")
-                        elif instruct[0]=="mov":
+                        elif (instruct[0]=="mov" or instruct[0]=="movf"):
                                 if "$" in instruct[2]:  
                                         reg_inst.append(instruct[1])
                                         for j in reg_inst:
@@ -380,12 +370,12 @@ def error_handling4():
         else:
             instruct = i.split()
                     
-        if instruct[0] == "add" or instruct[0] == "sub" or instruct[0] == "mul" or instruct[0] == "xor" or instruct[0] == "or" or instruct[0] == "and":
+        if instruct[0] == "add" or instruct[0] == "sub" or instruct[0] == "mul" or instruct[0] == "xor" or instruct[0] == "or" or instruct[0] == "and" or instruct[0]=="addf" or instruct[0]=="subf":
             regs.append(instruct[1])
             regs.append(instruct[2])
             regs.append(instruct[3])
             
-        elif instruct[0] == "mov" or instruct[0] == "rs" or instruct[0] == "ls":
+        elif instruct[0] == "mov" or instruct[0] == "rs" or instruct[0] == "ls" or instruct[0]=="movf":
             regs.append(instruct[1])
                 
         elif instruct[0] == "div" or instruct[0] == "not" or instruct[0] == "cmp":

@@ -1,17 +1,15 @@
 
 import sys
-from parameters2 import opcode2,registers2
-
-# def binary_actual_op(b):  # binary to actual opcode
-#     for x,y in opcode2.items():
-#         if x==b:
-#             return y
+from parameters2 import registers2
 
 def get_registers_A(inst):
     return registers2[inst[7:10]],registers2[inst[10:13]],registers2[inst[13:16]]
 
 def get_registers_B(inst):
     return registers2[inst[6:9]],inst[9:16].zfill(16)
+
+def get_registers_B_modified(inst):
+    return registers2[inst[5:8]],inst[8:16].zfill(16)
 
 def get_registers_C(inst):
     return registers2[inst[10:13]],registers2[inst[13:16]]
@@ -22,11 +20,59 @@ def get_registers_D(inst):
 def get_address_E(inst):
     return binary_decimal(inst[9:16])
 
-def binary_actual_r(a):   # binary to actual register
-    for x,y in registers2.items():
-        if x==a:
-            return y
-      
+def float_to_binary(number):
+    if number == 0:
+        return "0"
+    if number < 0:
+        r_values["FLAGS"]=flag_overflow
+        return "0"*16
+    binary = ""
+    fraction = number - int(number)
+    integer_part = abs(int(number))
+    while integer_part > 0:
+        binary = str(integer_part % 2) + binary
+        integer_part //= 2
+    binary += "."
+    max_digits = 16  
+    while fraction > 0 and len(binary) <= max_digits:
+        fraction *= 2
+        bit = int(fraction)
+        binary += str(bit)
+        fraction -= bit
+    return binary
+
+def binary_to_rep(binary):
+    str_binary = str(binary)
+    split = str_binary.split(".")
+    i = 0
+    while split[0] != "1":
+        if split[0] == "":
+            i = i - 1
+            if split[1][0] == "0":
+                split[1] = split[1][1:]
+            else:
+                split[0] = "1"
+                split[1] = split[1][1:]
+        else:
+            i = len(split[0]) - 1
+            split[1] = split[0][1:] + split[1]
+            split[0] = "1"   
+    return(split[0] + "." + split[1], i)
+
+def truncate(binary, exp):
+    if exp < -3 or exp > 4:
+        r_values["FLAGS"]=flag_overflow
+        return "0"*16
+    split = binary.split(".")
+    mantissa = split[1]
+    if len(mantissa) > 8:
+        r_values["FLAGS"]=flag_overflow
+        return "0"*16
+    final_mantissa = mantissa.ljust(5,"0")
+    bias_exp = exp + 3
+    bin_exp = bin(bias_exp)[2:]
+    final_exp = bin_exp.zfill(3)
+    return(final_exp + final_mantissa)
 
 def rep_to_decimal(rep):
     exp = rep[:3]
@@ -35,8 +81,15 @@ def rep_to_decimal(rep):
     mantissa_value = 0.0
     for i in range(len(mantissa)):
         mantissa_value = mantissa_value + float(mantissa[i])*((2)**(-(i+1)))
-    return((1+mantissa_value)*(2**(int_exp)))      
+    return((1+mantissa_value)*(2**(int_exp)))  
 
+def float_to_rep(number):
+    binary_representation = float_to_binary(number)
+    if binary_representation=="0"*16:
+        return binary_representation
+    standard_form, exponent = binary_to_rep(binary_representation)
+    final_ans = truncate(standard_form, exponent)
+    return final_ans    
 
 def decimal_binary(n):  
     x=bin(n).replace("0b","")
@@ -145,6 +198,34 @@ def and_op(inst,pc):
         out+=y  
     return out
 
+def addf_op(inst,pc):
+    out=""
+    count=decimal_binary_pc(pc)
+    destination,source_1,source_2=get_registers_A(inst)
+    d_source_1=rep_to_decimal(r_values[source_1])
+    d_source_2=rep_to_decimal(r_values[source_2])
+    final=d_source_1+d_source_2
+    r_values[destination]=float_to_rep(final)
+    out=count
+    for y in r_values.values():
+        out+=" "
+        out+=y  
+    return out
+
+def subf_op(inst,pc):
+    out=""
+    count=decimal_binary_pc(pc)
+    destination,source_1,source_2=get_registers_A(inst)
+    d_source_1=rep_to_decimal(r_values[source_1])
+    d_source_2=rep_to_decimal(r_values[source_2])
+    final=d_source_1-d_source_2
+    r_values[destination]=float_to_rep(final)
+    out=count
+    for y in r_values.values():
+        out+=" "
+        out+=y  
+    return out
+
 # Type B instructions
 
 def mov_imm_op(inst, pc):
@@ -185,6 +266,18 @@ def rs_op(inst, pc):
         out += " "
         out += y
     return out
+
+def movf_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination,immediate_value=get_registers_B_modified(inst)
+    r_values[destination] = immediate_value
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
 
 # Type C instruction
 
@@ -324,79 +417,6 @@ def halt_op(inst,pc):
         out += y
     return out[:-16]+"0"*16
 
-
-# Additional instructions
-
-def inc_op(inst, pc):
-    #This instruction increments the value of a register by 1
-    out = ""
-    count = decimal_binary_pc(pc)
-    destination, _, _ = get_registers_A(inst)
-    value = binary_decimal(r_values[destination])
-    value += 1
-    if value > ((2**16) - 1):
-        value = 0
-        r_values["FLAGS"] = flag_overflow
-    r_values[destination] = decimal_binary(value)
-    out = count
-    for y in r_values.values():
-        out += " "
-        out += y
-    return out
-
-def dec_op(inst, pc):
-    #This instruction decrements the value of a register by 1
-    out = ""
-    count = decimal_binary_pc(pc)
-    destination, _, _ = get_registers_A(inst)
-    value = binary_decimal(r_values[destination])
-    value -= 1
-    if value < 0:
-        value = (2**16) - 1
-        r_values["FLAGS"] = flag_overflow
-    r_values[destination] = decimal_binary(value)
-    out = count
-    for y in r_values.values():
-        out += " "
-        out += y
-    return out
-
-def swap_op(inst, pc):
-    #This instruction swaps the values of two registers
-    out = ""
-    count = decimal_binary_pc(pc)
-    destination, source_1, source_2 = get_registers_A(inst)
-    r_values[destination], r_values[source_2] = r_values[source_2], r_values[destination]
-    out = count
-    for y in r_values.values():
-        out += " "
-        out += y
-    return out
-
-def neg_op(inst, pc):
-    #This instruction negates the value of a register (bitwise complement)
-    out = ""
-    count = decimal_binary_pc(pc)
-    destination, _, _ = get_registers_A(inst)
-    value = binary_decimal(r_values[destination])
-    value = (~value) & 0xFFFF  # Bitwise complement
-    r_values[destination] = decimal_binary(value)
-    out = count
-    for y in r_values.values():
-        out += " "
-        out += y
-    return out
-
-def nop_op(inst, pc):
-    #This instruction performs no operation and simply moves to the next instruction
-    out = ""
-    count = decimal_binary_pc(pc)
-    out = count
-    for y in r_values.values():
-        out += " "
-        out += y
-    return out
-
 # Main function
 
 #input for testing
@@ -434,8 +454,6 @@ for i in f:
     file_instructions[pointer]=i.rstrip("\n")
     memory[k]=file_instructions[pointer]
     k+=1
-
-pc=0
 
 #Flag initialisation
 flag_overflow="0"*12+"1000"
@@ -485,6 +503,12 @@ while True:
         final_result=jgt_op(inst,i)
     elif op_code=="11111":
         final_result=je_op(inst,i)
+    elif op_code=="10000":
+        final_result=addf_op(inst,i)
+    elif op_code=="10001":
+        final_result=subf_op(inst,i)
+    elif op_code=="10010":
+        final_result=movf_op(inst,i)
     elif op_code=="11010":
         final_result=halt_op(inst,i)
         print(final_result.strip())
@@ -524,7 +548,6 @@ while True:
         else:
             i+=1
             inst=file_instructions[pointers[i]]
-    pc+=1
 for i in memory:
     print(i.strip())  
 f.close()
