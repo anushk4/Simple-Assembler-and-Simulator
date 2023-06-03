@@ -456,6 +456,31 @@ def rl_op(inst,pc):
         out += y
     return out
 
+def nand_op(inst,pc):
+    out=""
+    count = decimal_binary_pc(pc)
+    destination,source_1,source_2=get_registers_A(inst)
+    d_source_1=binary_decimal(r_values[source_1])
+    d_source_2=binary_decimal(r_values[source_2])
+    final=d_source_1&d_source_2
+    final2=final.replace("0", "_").replace("1", "0").replace("_", "1")
+    r_values[destination]=decimal_binary(final2)
+    out=count
+    for y in r_values.values():
+        out+=" "
+        out+=y  
+    return out
+
+def rev_op(inst,pc):
+    out=""
+    count = decimal_binary_pc(pc)
+    destination,source=get_registers_C(inst)
+    r_values[destination] = r_values[source][::-1]
+    out=count
+    for y in r_values.values():
+        out+=" "
+        out+=y  
+    return out
 # Main function
 
 #input for testing
@@ -554,6 +579,11 @@ while True:
         final_result=rr_op(inst,i)
     elif op_code=="10101":
         final_result=swap_op(inst,i)
+    elif op_code=="10110":
+        final_result=rev_op(inst,i)
+    elif op_code=="11110":
+        final_result=nand_op(inst,i)
+    
     elif op_code=="11010":
         final_result=halt_op(inst,i)
         print(final_result.strip())

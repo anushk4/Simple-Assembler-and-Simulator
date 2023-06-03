@@ -168,6 +168,14 @@ def rl(reg1,num):
         binary=bin(int(num))[2:].zfill(7)
         return (opcode["rl"]+"0"+registers[reg1]+binary)
 
+def rev(reg1,reg2):
+        return (opcode["rev"]+"00000"+registers[reg1]+registers[reg2])
+
+def nand(reg1, reg2, reg3):
+        return(opcode["nand"] + "00" + registers[reg1] + registers[reg2] + registers[reg3])
+
+       
+
 instructions=["add","sub","addf","subf","mov","movf","ld","st","mul","div","rs","ls","xor","or","and","not","cmp","jmp","jlt","jgt","je","hlt","swap","rr","rl","rev","nand"]
 reg=["R0","R1","R2","R3","R4","R5","R6","FLAGS","r0","r1","r2","r3","r4","r5","r6","flags"]
 
@@ -520,6 +528,8 @@ for i in memory:
                 output.append(orr(instruct[1],instruct[2],instruct[3]))
         elif instruct[0]=="and":
                 output.append(andd(instruct[1],instruct[2],instruct[3]))
+        elif instruct[0]=="nand":
+                output.append(nand(instruct[1],instruct[2],instruct[3]))
         elif instruct[0]=="mov":
                 if "$" in instruct[2]:
                         output.append(mov_addr(instruct[1],instruct[2][1:]))
@@ -537,6 +547,8 @@ for i in memory:
                 output.append(nott(instruct[1],instruct[2]))
         elif instruct[0]=="cmp":
                 output.append(cmp(instruct[1],instruct[2]))
+        elif instruct[0]=="rev":
+                output.append(rev(instruct[1],instruct[2]))
         elif instruct[0]=="ld":
                 output.append(ld(instruct[1],var[instruct[2]]))
         elif instruct[0]=="st":
