@@ -419,6 +419,45 @@ def halt_op(inst,pc):
 
 #Bonus instructions
 
+def swap_op(inst, pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination, source_1, source_2 = get_registers_A(inst)
+    r_values[destination], r_values[source_2] = r_values[source_2], r_values[destination]
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def rr_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination, rotate_amount = get_registers_B(inst)
+    rotate_amount=binary_decimal(rotate_amount)
+    value = r_values[destination]
+    rotated_value = value[-rotate_amount:]+value[:-rotate_amount]
+    r_values[destination] = rotated_value
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
+def rl_op(inst,pc):
+    out = ""
+    count = decimal_binary_pc(pc)
+    destination, rotate_amount = get_registers_B(inst)
+    rotate_amount=binary_decimal(rotate_amount)
+    value = r_values[destination]
+    rotated_value = value[rotate_amount:]+value[:rotate_amount]
+    r_values[destination] = rotated_value
+    out = count
+    for y in r_values.values():
+        out += " "
+        out += y
+    return out
+
 # Main function
 
 #input for testing
@@ -511,6 +550,12 @@ while True:
         final_result=subf_op(inst,i)
     elif op_code=="10010":
         final_result=movf_op(inst,i)
+    elif op_code=="11011":
+        final_result=rl_op(inst,i)
+    elif op_code=="10111":
+        final_result=rr_op(inst,i)
+    elif op_code=="10101":
+        final_result=swap_op(inst,i)
     elif op_code=="11010":
         final_result=halt_op(inst,i)
         print(final_result.strip())
