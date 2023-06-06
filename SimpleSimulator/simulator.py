@@ -1,3 +1,4 @@
+import sys
 from parameters2 import registers2
 
 def get_registers_A(inst):
@@ -114,7 +115,7 @@ def add_op(inst,pc):
         final=0
         r_values["FLAGS"]=flag_overflow
     r_values[destination]=decimal_binary(final)
-    out=count
+    out = count+" "*7
     for y in r_values.values():
         out+=" "
         out+=y  
@@ -131,7 +132,7 @@ def sub_op(inst,pc):
         final=0
         r_values["FLAGS"]=flag_overflow
     r_values[destination]=decimal_binary(final)
-    out=count
+    out = count+" "*7
     for y in r_values.values():
         out+=" "
         out+=y  
@@ -148,7 +149,7 @@ def mul_op(inst,pc):
         final=0
         r_values["FLAGS"]=flag_overflow
     r_values[destination]=decimal_binary(final)
-    out=count
+    out = count+" "*7
     for y in r_values.values():
         out+=" "
         out+=y  
@@ -162,7 +163,8 @@ def xor_op(inst,pc):
     d_source_2=binary_decimal(r_values[source_2])
     final=d_source_1^d_source_2
     r_values[destination]=decimal_binary(final)
-    out=count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out+=" "
         out+=y  
@@ -176,7 +178,8 @@ def or_op(inst,pc):
     d_source_2=binary_decimal(r_values[source_2])
     final=d_source_1|d_source_2
     r_values[destination]=decimal_binary(final)
-    out=count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out+=" "
         out+=y  
@@ -190,7 +193,8 @@ def and_op(inst,pc):
     d_source_2=binary_decimal(r_values[source_2])
     final=d_source_1&d_source_2
     r_values[destination]=decimal_binary(final)
-    out=count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out+=" "
         out+=y  
@@ -204,7 +208,7 @@ def addf_op(inst,pc):
     d_source_2=rep_to_decimal(r_values[source_2])
     final=d_source_1+d_source_2
     r_values[destination]=float_to_rep(final)
-    out=count
+    out = count+" "*7
     for y in r_values.values():
         out+=" "
         out+=y  
@@ -218,7 +222,7 @@ def subf_op(inst,pc):
     d_source_2=rep_to_decimal(r_values[source_2])
     final=d_source_1-d_source_2
     r_values[destination]=float_to_rep(final)
-    out=count
+    out = count+" "*7
     for y in r_values.values():
         out+=" "
         out+=y  
@@ -231,7 +235,8 @@ def mov_imm_op(inst, pc):
     count = decimal_binary_pc(pc)
     destination,immediate_value=get_registers_B(inst)
     r_values[destination] = immediate_value
-    out = count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -245,7 +250,8 @@ def ls_op(inst, pc):
     value = r_values[destination]
     shifted_value = value[shift_amount:] + "0" * shift_amount
     r_values[destination] = shifted_value
-    out = count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -259,7 +265,8 @@ def rs_op(inst, pc):
     value = r_values[destination]
     shifted_value = "0" * shift_amount + value[:-shift_amount]
     r_values[destination] = shifted_value
-    out = count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -270,7 +277,8 @@ def movf_op(inst,pc):
     count = decimal_binary_pc(pc)
     destination,immediate_value=get_registers_B_modified(inst)
     r_values[destination] = immediate_value
-    out = count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -285,7 +293,8 @@ def mov_reg_op(inst, pc):
     destination,source=get_registers_C(inst)
     r_values[destination] = r_values[source]
     r_values[source]="0"*16
-    out = count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -304,7 +313,7 @@ def divide_op(inst,pc):
     else:
         r_values["R0"]=decimal_binary(value_1//value_2)
         r_values["R1"]=decimal_binary(value_1%value_2)
-    out = count
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -317,7 +326,8 @@ def not_op(inst,pc):
     d_source_1=r_values[source]
     final=d_source_1.replace("0", "_").replace("1", "0").replace("_", "1")
     r_values[destination]=final
-    out = count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -335,7 +345,7 @@ def cmp_op(inst,pc):
         r_values["FLAGS"]=flag_less_than
     else:
         r_values["FLAGS"]=flag_equal
-    out = count
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -349,7 +359,8 @@ def ld_op(inst, pc):
     count = decimal_binary_pc(pc)
     destination,memory_address=get_registers_D(inst)
     r_values[destination] = memory[memory_address]
-    out = count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -360,7 +371,8 @@ def st_op(inst, pc):
     count = decimal_binary_pc(pc)
     source,memory_address=get_registers_D(inst)
     memory[memory_address] = r_values[source]
-    out = count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -371,16 +383,16 @@ def st_op(inst, pc):
 def jmp_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
-    out = count
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
-    return out
+    return out[:-16]+"0"*16
 
 def jlt_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
-    out = count
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -389,7 +401,7 @@ def jlt_op(inst,pc):
 def jgt_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
-    out = count
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -398,7 +410,7 @@ def jgt_op(inst,pc):
 def je_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
-    out = count
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
@@ -409,27 +421,21 @@ def je_op(inst,pc):
 def halt_op(inst,pc):
     out = ""
     count = decimal_binary_pc(pc)
-    out = count
+    r_values["FLAGS"]="0"*16
+    out = count+" "*7
     for y in r_values.values():
         out += " "
         out += y
     return out[:-16]+"0"*16
 
 # Main function
+lines = []
 
-#input for testing
- 
-f=open("stdin.txt","r")
-
-# lines = []
-
-# actual input
-
-# while True:
-#     line = sys.stdin.readline().strip()
-#     if not line:
-#         break
-#     lines.append(line)
+while True:
+    line = sys.stdin.readline().strip()
+    if not line:
+        break
+    lines.append(line)
 
 r_values={
     "R0":"0"*16,
@@ -446,7 +452,7 @@ k=0
 file_instructions={}
 memory=["0"*16]*128
 pointers=[]
-for i in f:
+for i in lines:
     pointer=bin(k)[2:].zfill(7)
     pointers.append(pointer)
     file_instructions[pointer]=i.rstrip("\n")
@@ -548,4 +554,3 @@ while True:
             inst=file_instructions[pointers[i]]
 for i in memory:
     print(i.strip())  
-f.close()
