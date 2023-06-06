@@ -387,7 +387,7 @@ def jmp_op(inst,pc):
     for y in r_values.values():
         out += " "
         out += y
-    return out[:-16]+"0"*16
+    return out[:-16]
 
 def jlt_op(inst,pc):
     out = ""
