@@ -432,8 +432,8 @@ def halt_op(inst,pc):
 def swap_op(inst, pc):
     out = ""
     count = decimal_binary_pc(pc)
-    destination, source_1, source_2 = get_registers_A(inst)
-    r_values[destination], r_values[source_2] = r_values[source_2], r_values[destination]
+    source_1, source_2 = get_registers_C(inst)
+    r_values[source_1], r_values[source_2] = r_values[source_2], r_values[source_1]
     r_values["FLAGS"]="0"*16
     out = count+" "*7
     for y in r_values.values():
@@ -478,8 +478,9 @@ def nand_op(inst,pc):
     d_source_1=binary_decimal(r_values[source_1])
     d_source_2=binary_decimal(r_values[source_2])
     final=d_source_1&d_source_2
+    final=decimal_binary(final)
     final2=final.replace("0", "_").replace("1", "0").replace("_", "1")
-    r_values[destination]=decimal_binary(final2)
+    r_values[destination]=final2
     r_values["FLAGS"]="0"*16
     out = count+" "*7
     for y in r_values.values():
