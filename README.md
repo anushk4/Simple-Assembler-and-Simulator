@@ -65,6 +65,6 @@ To run both Assembler and Simulator, run the following command on Linux:
 # Floating point
 Following have been added to Assembler and Simulator to handle floating point numbers:
 
-- Functions for conversions of binary to decimal and vice versa.
+- Functions for conversions from standard binary floating point representation to decimal and vice versa.
 
 - Functions to implement addf, subf and movf.
